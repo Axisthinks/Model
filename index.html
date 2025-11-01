@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glassmorphism Calculator</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      /* --- CSS VARIABLES for Themes --- */
+      :root {
+        /* Light Theme (Default) */
+        --body-bg-start: #a481ff;
+        --body-bg-end: #6f42c1;
+        --calc-bg-glass: rgba(255, 255, 255, 0.2);
+        --calc-border: rgba(255, 255, 255, 0.5);
+        --btn-bg: rgba(255, 255, 255, 0.1);
+        --btn-text-color: white;
+        --operator-color: #f0f0f0;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --bulb-color: white;
+      }
+
+      html[data-theme="dark"] {
+        /* Dark Theme */
+        --body-bg-start: #1c1c1e;
+        --body-bg-end: #000000;
+        --calc-bg-glass: rgba(0, 0, 0, 0.4);
+        --calc-border: rgba(255, 255, 255, 0.1);
+        --btn-bg: rgba(255, 255, 255, 0.05);
+        --btn-text-color: #e0e0e0;
+        --operator-color: #90caf9;
+        --shadow-color: rgba(0, 0, 0, 0.8);
+        --bulb-color: gold;
+      }
+
+      /* --- Global Styles using Variables --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(
+          45deg,
+          var(--body-bg-start),
+          var(--body-bg-end)
+        );
+        overflow-x: hidden;
+        /* Changed to column to allow the fixed button to float above */
+        flex-direction: column;
+        transition: background 0.5s;
+      }
+
+      /* ---------------------------------------------------- */
+      /* --- Theme Toggle Button Styling (Fixed Position) --- */
+      /* ---------------------------------------------------- */
+      #theme-toggle-btn {
+        /* Fixes the button relative to the viewport */
+        position: fixed;
+        top: 25px; /* Distance from the top */
+        right: 25px; /* Distance from the right side */
+
+        background: none;
+        border: none;
+        color: var(--bulb-color);
+        font-size: 2.5rem;
+        cursor: pointer;
+        padding: 10px;
+        transition: color 0.3s, text-shadow 0.3s;
+        z-index: 10; /* Ensures it's always on top of the calculator */
+      }
+
+      #theme-toggle-btn:hover {
+        opacity: 0.8;
+      }
+
+      /* Glowing effect for the bulb */
+      html[data-theme="light"] #theme-toggle-btn {
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      }
+
+      html[data-theme="dark"] #theme-toggle-btn {
+        text-shadow: 0 0 15px gold, 0 0 30px gold, 0 0 45px gold;
+      }
+
+      /* Calculator Container */
+      .calculator {
+        max-width: 320px;
+        width: 90%;
+        padding: 15px;
+        border-radius: 30px;
+
+        background: var(--calc-bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--calc-border);
+        box-shadow: 0 8px 32px 0 var(--shadow-color);
+        transition: background 0.5s, border 0.5s;
+        /* Added margin-top to prevent the fixed button from overlapping the calculator on small screens */
+        margin-top: 50px;
+      }
+
+      /* Display Screen Style */
+      .display {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .screen {
+        width: 100%;
+        background: transparent;
+        border: none;
+        text-align: right;
+        font-size: 2.5rem;
+        color: var(--btn-text-color);
+        padding: 0 5px;
+        outline: none;
+        transition: color 0.5s;
+      }
+
+      /* Button Grid Layout */
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      /* Base Button Style */
+      .btn {
+        padding: 1.1rem 0;
+        height: 60px;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.2rem;
+        color: var(--btn-text-color);
+        cursor: pointer;
+        background: var(--btn-bg);
+        transition: background 0.2s, color 0.5s;
+        box-shadow: 0 2px 4px var(--shadow-color);
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Specific Button Styles */
+      .clear-btn {
+        background: #ff69b4;
+        font-weight: bold;
+      }
+
+      .equal-btn {
+        background: #ffa500;
+        font-weight: bold;
+      }
+
+      /* Operator Color */
+      .operator,
+      .open-paren,
+      .close-paren {
+        color: var(--operator-color);
+        font-weight: bold;
+        transition: color 0.5s;
+      }
+
+      /* --- Responsive Adjustments for Mobile Screens --- */
+      @media (max-width: 400px) {
+        .calculator {
+          margin-top: 50px; /* Keep space below the fixed button */
+        }
+        .screen {
+          font-size: 2rem;
+        }
+        .btn {
+          height: 55px;
+          font-size: 1.1rem;
+          border-radius: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button id="theme-toggle-btn">
+      <i class="fas fa-lightbulb"></i>
+    </button>
+
+    <div class="calculator">
+      <div class="display">
+        <input type="text" class="screen" value="" readonly />
+      </div>
+
+      <div class="buttons">
+        <button class="btn clear-btn" data-value="C">C</button>
+        <button class="btn operator" data-value="/">/</button>
+        <button class="btn operator" data-value="*">×</button>
+        <button class="btn operator" data-value="-">-</button>
+
+        <button class="btn number" data-value="7">7</button>
+        <button class="btn number" data-value="8">8</button>
+        <button class="btn number" data-value="9">9</button>
+        <button class="btn operator plus" data-value="+">+</button>
+
+        <button class="btn number" data-value="4">4</button>
+        <button class="btn number" data-value="5">5</button>
+        <button class="btn number" data-value="6">6</button>
+        <button class="btn operator" data-value="(">(</button>
+
+        <button class="btn number" data-value="1">1</button>
+        <button class="btn number" data-value="2">2</button>
+        <button class="btn number" data-value="3">3</button>
+        <button class="btn operator" data-value=")">)</button>
+
+        <button class="btn number" data-value="0">0</button>
+        <button class="btn decimal" data-value=".">.</button>
+        <button
+          class="btn equal-btn"
+          data-value="="
+          style="grid-column: span 2"
+        >
+          =
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // --- Calculator Logic ---
+      const screen = document.querySelector(".screen");
+      const buttons = document.querySelectorAll(".btn");
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", (e) => {
+          const value = e.target.getAttribute("data-value");
+
+          if (value === "C") {
+            screen.value = "";
+          } else if (value === "=") {
+            try {
+              let result = screen.value.replace(/×/g, "*").replace(/÷/g, "/");
+              screen.value = eval(result);
+            } catch {
+              screen.value = "Error";
+            }
+          } else {
+            screen.value += value;
+          }
+        });
+      });
+
+      // --- Theme Toggle Logic ---
+      const themeToggleBtn = document.getElementById("theme-toggle-btn");
+      const htmlElement = document.documentElement; // The <html> tag
+
+      function switchTheme() {
+        const currentTheme = htmlElement.getAttribute("data-theme");
+
+        if (currentTheme === "light") {
+          htmlElement.setAttribute("data-theme", "dark");
+          localStorage.setItem("theme", "dark");
+        } else {
+          htmlElement.setAttribute("data-theme", "light");
+          localStorage.setItem("theme", "light");
+        }
+      }
+
+      // Event listener for the theme button
+      themeToggleBtn.addEventListener("click", switchTheme, false);
+
+      // Load saved theme on page load
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme) {
+        htmlElement.setAttribute("data-theme", savedTheme);
+      }
+    </script>
+  </body>
+</html>
