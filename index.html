@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Glassmorphism Calculator</title>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-
     <style>
       /* --- CSS VARIABLES for Themes --- */
       :root {
@@ -22,11 +17,10 @@
         --btn-text-color: white;
         --operator-color: #f0f0f0;
         --shadow-color: rgba(0, 0, 0, 0.3);
-        --bulb-color: white;
       }
 
+      /* Dark Theme (applied when <html> has [data-theme="dark"]) */
       html[data-theme="dark"] {
-        /* Dark Theme */
         --body-bg-start: #1c1c1e;
         --body-bg-end: #000000;
         --calc-bg-glass: rgba(0, 0, 0, 0.4);
@@ -35,7 +29,6 @@
         --btn-text-color: #e0e0e0;
         --operator-color: #90caf9;
         --shadow-color: rgba(0, 0, 0, 0.8);
-        --bulb-color: gold;
       }
 
       /* --- Global Styles using Variables --- */
@@ -57,42 +50,168 @@
           var(--body-bg-end)
         );
         overflow-x: hidden;
-        /* Changed to column to allow the fixed button to float above */
         flex-direction: column;
         transition: background 0.5s;
       }
 
       /* ---------------------------------------------------- */
-      /* --- Theme Toggle Button Styling (Fixed Position) --- */
+      /* --- NEW DAY/NIGHT TOGGLE STYLES (Resized to 100x40) --- */
       /* ---------------------------------------------------- */
-      #theme-toggle-btn {
-        /* Fixes the button relative to the viewport */
+      .toggle-container {
+        /* Main Size Adjustment */
+        width: 100px;
+        height: 40px;
+        border-radius: 20px; /* Adjusted border radius */
+        
         position: fixed;
-        top: 25px; /* Distance from the top */
-        right: 25px; /* Distance from the right side */
-
-        background: none;
-        border: none;
-        color: var(--bulb-color);
-        font-size: 2.5rem;
+        top: 25px;
+        right: 25px;
+        z-index: 10;
+        
+        background: linear-gradient(135deg, #c49060 0%, #d4a574 100%);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
         cursor: pointer;
-        padding: 10px;
-        transition: color 0.3s, text-shadow 0.3s;
-        z-index: 10; /* Ensures it's always on top of the calculator */
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      #theme-toggle-btn:hover {
+      html[data-theme="dark"] .toggle-container {
+        background: linear-gradient(135deg, #3d5a80 0%, #4a5f7a 100%);
+      }
+
+      .toggle-container:hover {
+        transform: scale(1.05);
+      }
+
+      /* Landscape */
+      .landscape {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      /* Mountains (Scaled Down) */
+      .mountain {
+        position: absolute;
+        bottom: 0;
+        background: linear-gradient(to top, #8b6f47, #a0845a);
+        border-radius: 50% 50% 0 0;
+      }
+
+      .mountain-1 {
+        left: 10%;
+        width: 35px;
+        height: 20px;
+        opacity: 0.6;
+      }
+
+      .mountain-2 {
+        right: 15%;
+        width: 45px;
+        height: 30px;
         opacity: 0.8;
       }
 
-      /* Glowing effect for the bulb */
-      html[data-theme="light"] #theme-toggle-btn {
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      .mountain-3 {
+        left: 30%;
+        width: 40px;
+        height: 35px;
+        background: linear-gradient(to top, #6b5435, #8b6f47);
+        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        border-radius: 0;
       }
 
-      html[data-theme="dark"] #theme-toggle-btn {
-        text-shadow: 0 0 15px gold, 0 0 30px gold, 0 0 45px gold;
+      /* Clouds (Scaled Down) */
+      .cloud {
+        position: absolute;
+        display: flex;
+        gap: 1px; /* Reduced gap */
+        opacity: 0;
+        transition: opacity 0.7s ease;
       }
+
+      html[data-theme="light"] .cloud {
+        opacity: 1;
+      }
+
+      .cloud span {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        height: 5px; /* Reduced height */
+      }
+
+      .cloud-1 {
+        top: 6px; /* Adjusted */
+        left: 10%;
+      }
+      .cloud-1 span:nth-child(1) { width: 10px; }
+      .cloud-1 span:nth-child(2) { width: 8px; margin-left: -3px; }
+      .cloud-1 span:nth-child(3) { width: 8px; margin-left: -2px; }
+
+      .cloud-2 {
+        top: 15px; /* Adjusted */
+        right: 15%;
+      }
+      .cloud-2 span:nth-child(1) { width: 8px; }
+      .cloud-2 span:nth-child(2) { width: 6px; margin-left: -2px; }
+
+      /* Desert floor */
+      .desert-floor {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 12px; /* Reduced */
+        background: linear-gradient(to top, rgba(107, 84, 53, 1), transparent);
+      }
+
+      /* Sun/Moon (Scaled Down and Repositioned) */
+      .sun-moon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px; /* Reduced */
+        height: 20px; /* Reduced */
+        border-radius: 50%;
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        left: 10px; /* Adjusted Start position */
+        background: linear-gradient(to bottom right, #ffcc99, #ff9966);
+        box-shadow: 0 0 8px rgba(255, 165, 0, 0.6);
+      }
+
+      html[data-theme="dark"] .sun-moon {
+        left: calc(100% - 30px); /* Adjusted End position */
+        background: linear-gradient(to bottom right, #ffe699, #ffd666);
+        box-shadow: 0 0 12px rgba(255, 255, 0, 0.8);
+      }
+
+      /* Stars (Scaled Down) */
+      .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.7s ease;
+        animation: pulse 2s infinite;
+      }
+
+      html[data-theme="dark"] .star {
+        opacity: 1;
+      }
+
+      .star-1 { top: 6px; right: 20px; width: 1px; height: 1px; } /* Reduced */
+      .star-2 { top: 12px; right: 30px; width: 1px; height: 1px; animation-delay: 0.5s; } /* Reduced */
+      .star-3 { top: 10px; right: 40px; width: 0.5px; height: 0.5px; animation-delay: 1s; } /* Reduced */
+      .star-4 { top: 16px; right: 15px; width: 0.5px; height: 0.5px; animation-delay: 1.5s; } /* Reduced */
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      /* ---------------------------------------------------- */
+      /* --- Original Calculator Styles --- */
+      /* ---------------------------------------------------- */
 
       /* Calculator Container */
       .calculator {
@@ -107,8 +226,8 @@
         border: 1px solid var(--calc-border);
         box-shadow: 0 8px 32px 0 var(--shadow-color);
         transition: background 0.5s, border 0.5s;
-        /* Added margin-top to prevent the fixed button from overlapping the calculator on small screens */
-        margin-top: 50px;
+        /* Adjusted margin-top for smaller toggle */
+        margin-top: 70px;
       }
 
       /* Display Screen Style */
@@ -183,7 +302,11 @@
       /* --- Responsive Adjustments for Mobile Screens --- */
       @media (max-width: 400px) {
         .calculator {
-          margin-top: 50px; /* Keep space below the fixed button */
+          margin-top: 60px; /* Adjusted for smallest size */
+        }
+        .toggle-container {
+            top: 15px;
+            right: 15px;
         }
         .screen {
           font-size: 2rem;
@@ -197,10 +320,32 @@
     </style>
   </head>
   <body>
-    <button id="theme-toggle-btn">
-      <i class="fas fa-lightbulb"></i>
-    </button>
+    <div class="toggle-container" id="theme-toggle">
+      <div class="landscape">
+        <div class="mountain mountain-1"></div>
+        <div class="mountain mountain-2"></div>
+        <div class="mountain mountain-3"></div>
 
+        <div class="cloud cloud-1">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="cloud cloud-2">
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="desert-floor"></div>
+
+        <div class="sun-moon"></div>
+
+        <div class="star star-1"></div>
+        <div class="star star-2"></div>
+        <div class="star star-3"></div>
+        <div class="star star-4"></div>
+      </div>
+    </div>
     <div class="calculator">
       <div class="display">
         <input type="text" class="screen" value="" readonly />
@@ -246,26 +391,30 @@
 
       buttons.forEach((button) => {
         button.addEventListener("click", (e) => {
-          const value = e.target.getAttribute("data-value");
+          // FIX: Ensuring the data-value is extracted correctly from the clicked element
+          // We use e.currentTarget to make sure we get the value from the button itself, not a child element if there were any.
+          const value = e.currentTarget.getAttribute("data-value");
 
           if (value === "C") {
             screen.value = "";
           } else if (value === "=") {
             try {
+              // Replace display symbols (×) with JavaScript operators (*) before evaluation
               let result = screen.value.replace(/×/g, "*").replace(/÷/g, "/");
               screen.value = eval(result);
             } catch {
               screen.value = "Error";
             }
           } else {
+            // Append the correct value to the screen
             screen.value += value;
           }
         });
       });
 
       // --- Theme Toggle Logic ---
-      const themeToggleBtn = document.getElementById("theme-toggle-btn");
-      const htmlElement = document.documentElement; // The <html> tag
+      const themeToggleDiv = document.getElementById("theme-toggle");
+      const htmlElement = document.documentElement;
 
       function switchTheme() {
         const currentTheme = htmlElement.getAttribute("data-theme");
@@ -279,8 +428,8 @@
         }
       }
 
-      // Event listener for the theme button
-      themeToggleBtn.addEventListener("click", switchTheme, false);
+      // Event listener for the theme container div
+      themeToggleDiv.addEventListener("click", switchTheme, false);
 
       // Load saved theme on page load
       const savedTheme = localStorage.getItem("theme");
